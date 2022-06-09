@@ -50,7 +50,7 @@ class RoundShadow(QFrame):
         rect.setTop(9)
         rect.setWidth(rect.width()-9)
         rect.setHeight(rect.height()-9)
-        pat2.drawRoundedRect(rect, 15, 15)
+        pat2.drawRoundedRect(rect, 12, 12)
 
     def mousePressEvent(self, event):
         """ Move the window """

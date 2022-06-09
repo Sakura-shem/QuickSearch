@@ -1,3 +1,4 @@
 from .btn import CloseButton, ModeButton
 from .input import lineInput
-from .basewindow import RoundShadow
+from .BaseWindow import RoundShadow
+from .ResultWindow import ResultWindow

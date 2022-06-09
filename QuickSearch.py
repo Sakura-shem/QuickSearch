@@ -1,12 +1,9 @@
-import sys, keyboard, time
-from telnetlib import STATUS
-from pip import main
-import pyautogui as pag
+from genericpath import exists
+import sys, keyboard, time, threading
 from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import (QWidget, QApplication, QHBoxLayout)
-from PySide6 import QtCore
+from PySide6.QtWidgets import (QWidget, QApplication, QHBoxLayout, QVBoxLayout)
 from PySide6.QtCore import Qt, QTimer
-from Widgets import CloseButton, ModeButton, lineInput, RoundShadow
+from Widgets import CloseButton, ModeButton, lineInput, RoundShadow, ResultWindow
 
 
 
@@ -16,47 +13,50 @@ class Window(RoundShadow):
         super().__init__()
         self.setWindowTitle("QuickSearch")
         self.resize(400, 60)
-        x, y = pag.position() #返回鼠标的坐标
+        x, y = 500, 500
         self.move(x, y)
         self.layout()
-        self.setProperty("class", "window")
+        self.resWindowInit()
+        self.checkInit()
 
+    def checkInit(self):
+        def check():
+            if self.closeBtn.status:
+                self.show()
+                self.input.setFocusPolicy(Qt.StrongFocus)
+            else:
+                if hasattr(self, "resWindow") and self.resWindow:
+                    self.resWindow.hide()
+
+                self.input.clear()
+                self.input.setFocusPolicy(Qt.NoFocus)
+                self.close()
         self.checkTimer = QTimer(self)
         self.checkTimer.start(100)
-        self.checkTimer.timeout.connect(self.check)
-    
-    def check(self):
-        if self.closeBtn.status:
-            self.show()
-        else:
-            self.hide()
+        self.checkTimer.timeout.connect(check)
 
-    def lineInput(self):
-        self.input = lineInput()
-        self.input.setFixedSize(300, 30)
-        self.input.textChanged.connect(self.textdeal)
 
-    def textdeal(self):
-        # 0 -- 翻译 1 -- Google
-        print(self.input.text())
-        if self.modeBtn.status == 0:
-            print(self.input.text())
-        else:
-            print(self.input.text())
+    def resWindowInit(self):
+        def follow(pos):
+            self.resWindow.move(pos.x() + 5, pos.y() + 43)
+        self.resWindow = ResultWindow()
+        self.resWindow.move(self.pos().x() + 5, self.pos().y() + 43)
+        self.input.textChanged.connect(lambda: self.textdeal(time.time()))
+        self.followTimer = QTimer(self)
+        self.followTimer.start(1)
+        self.followTimer.timeout.connect(lambda: follow(self.pos()))
 
-    def close_btn(self):
+    def layout(self):
         global closeBtn
         self.closeBtn = closeBtn =  CloseButton(self)
         self.closeBtn.setFixedSize(15, 15)
 
-    def mode_btn(self):
         self.modeBtn = ModeButton()
         self.modeBtn.setFixedSize(25, 25)
 
-    def layout(self):
-        self.close_btn()
-        self.mode_btn()
-        self.lineInput()
+        self.input = lineInput()
+        self.input.setFixedSize(300, 30)
+
 
         hbox = QHBoxLayout()
         hbox.addStretch(2)
@@ -68,6 +68,27 @@ class Window(RoundShadow):
         hbox.addStretch(2)
         self.setLayout(hbox)
 
+    def textdeal(self, new_time):
+        # 0 -- 翻译 
+        # 1 -- Google
+        def deal():
+            # self.dealTimer = None
+            if self.modeBtn.status == 0:                
+                self.resWindow.translate(self.input.text())
+                self.resWindow.show()
+                self.activateWindow()
+            else:
+                print(self.input.text())
+        if hasattr(self, "dealTimer"):
+            self.dealTimer.stop()
+        if self.input.text():
+            self.dealTimer = QTimer(self)
+            self.dealTimer.setSingleShot(True)
+            self.dealTimer.start(500)
+            self.dealTimer.timeout.connect(deal)
+        else:
+            self.resWindow.hide()
+
 
 
 
@@ -76,10 +97,6 @@ def main_window():
     w = Window()
     w.show()
     app.exec()
-
-
-import threading
-import time
 
 def close_window():
     global closeBtn, status
