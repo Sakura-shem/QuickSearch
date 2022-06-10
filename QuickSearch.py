@@ -4,8 +4,8 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import (QWidget, QApplication, QHBoxLayout, QVBoxLayout)
 from PySide6.QtCore import Qt, QTimer
 from Widgets import CloseButton, ModeButton, lineInput, RoundShadow, ResultWindow
-
-
+import os
+import webbrowser 
 
 class Window(RoundShadow):
 
@@ -31,6 +31,11 @@ class Window(RoundShadow):
                 self.input.clear()
                 self.input.setFocusPolicy(Qt.NoFocus)
                 self.close()
+            if self.modeBtn.modeChange:
+                self.modeBtn.modeChange = 0
+                self.input.setText("")
+                if hasattr(self, "resWindow") and self.resWindow:
+                    self.resWindow.hide()
         self.checkTimer = QTimer(self)
         self.checkTimer.start(100)
         self.checkTimer.timeout.connect(check)
@@ -41,12 +46,19 @@ class Window(RoundShadow):
             self.resWindow.move(pos.x() + 5, pos.y() + 43)
         self.resWindow = ResultWindow()
         self.resWindow.move(self.pos().x() + 5, self.pos().y() + 43)
-        self.input.textChanged.connect(lambda: self.textdeal(time.time()))
+        self.input.textChanged.connect(lambda: self.textdeal())
+        self.input.returnPressed.connect(lambda: self.serach())
         self.followTimer = QTimer(self)
         self.followTimer.start(1)
         self.followTimer.timeout.connect(lambda: follow(self.pos()))
+    
+    def changeMode(self):
+            self.modeBtn.status = (self.status + 1) % 2
+            self.modeBtn.load(self.url[self.status])
+            self.input.setText("")
 
     def layout(self):
+
         global closeBtn
         self.closeBtn = closeBtn =  CloseButton(self)
         self.closeBtn.setFixedSize(15, 15)
@@ -67,28 +79,29 @@ class Window(RoundShadow):
         hbox.addWidget(self.closeBtn)
         hbox.addStretch(2)
         self.setLayout(hbox)
-
-    def textdeal(self, new_time):
-        # 0 -- 翻译 
-        # 1 -- Google
+    
+    # 0 -- 翻译 
+    # 1 -- Google
+    def textdeal(self):
         def deal():
-            # self.dealTimer = None
-            if self.modeBtn.status == 0:                
-                self.resWindow.translate(self.input.text())
-                self.resWindow.show()
-                self.activateWindow()
+            self.resWindow.translate(self.input.text())
+            self.resWindow.show()
+            self.activateWindow()
+        if self.modeBtn.status == 0:
+            if hasattr(self, "dealTimer"):
+                self.dealTimer.stop()
+            if self.input.text():
+                self.dealTimer = QTimer(self)
+                self.dealTimer.setSingleShot(True)
+                self.dealTimer.start(500)
+                self.dealTimer.timeout.connect(deal)
             else:
-                print(self.input.text())
-        if hasattr(self, "dealTimer"):
-            self.dealTimer.stop()
-        if self.input.text():
-            self.dealTimer = QTimer(self)
-            self.dealTimer.setSingleShot(True)
-            self.dealTimer.start(500)
-            self.dealTimer.timeout.connect(deal)
-        else:
-            self.resWindow.hide()
+                self.resWindow.hide()
 
+    def serach(self):
+        if hasattr(self, "resWindow") and self.resWindow:
+            self.resWindow.hide()
+        webbrowser.open("https://www.google.com/search?q=" + self.input.text())
 
 
 

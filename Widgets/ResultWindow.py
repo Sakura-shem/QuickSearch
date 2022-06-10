@@ -17,8 +17,6 @@ class ResultWindow(RoundShadow):
 
     def table_init(self):
         self.table = QTableWidget()
-        
-        
         self.table.setFixedWidth(350)
         self.table.setShowGrid(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -60,18 +58,15 @@ class ResultWindow(RoundShadow):
             }
 
         res = session.get(url, headers=headers).json()["data"]
-        if res:
-            print("展示结果")
-            res = res["entries"]
-            print(res)
-            word = []
-            explain = []
-            for i in res:
-                word.append(i["entry"])
-                explain.append(i["explain"])
-            self.generateLabel(word, explain)
-        else:
-            print("没有结果")
+        if not res:
+            res = {"entries":[{"entry":"NoRes", "explain":"NoRes"}]}      
+        res = res["entries"]
+        word = []
+        explain = []
+        for i in res:
+            word.append(i["entry"])
+            explain.append(i["explain"])
+        self.generateLabel(word, explain)
 
         return res
 

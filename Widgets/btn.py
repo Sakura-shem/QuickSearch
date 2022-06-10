@@ -25,7 +25,9 @@ class ModeButton(QSvgWidget):
         self.url = [r"resource\images\Mode\translate.svg", r"resource\images\Mode\search.svg"]
         super().__init__(self.url[0])
         self.status = 0
+        self.modeChange = 0
 
     def mouseDoubleClickEvent(self, e):
         self.status = (self.status + 1) % 2
+        self.modeChange = 1
         self.load(self.url[self.status])
