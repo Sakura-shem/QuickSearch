@@ -1,11 +1,8 @@
-from genericpath import exists
-import sys, keyboard, time, threading
+import sys, keyboard, threading, webbrowser
 from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import (QWidget, QApplication, QHBoxLayout, QVBoxLayout)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout)
 from PySide6.QtCore import Qt, QTimer
 from Widgets import CloseButton, ModeButton, lineInput, RoundShadow, ResultWindow
-import os
-import webbrowser 
 
 class Window(RoundShadow):
 

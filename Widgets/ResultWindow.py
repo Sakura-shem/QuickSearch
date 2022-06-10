@@ -1,9 +1,8 @@
-from tkinter import Widget
-from PySide6.QtWidgets import (QLabel, QFrame, QVBoxLayout, QFormLayout, QTableWidget, QHBoxLayout, QGridLayout, QTableWidgetItem)
-from PySide6.QtWidgets import QApplication
+import requests
+from PySide6.QtWidgets import (QFrame, QTableWidget, QHBoxLayout, QTableWidgetItem)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QColor
-import requests
+
 from Widgets import RoundShadow
 
 class ResultWindow(RoundShadow):

@@ -1,5 +1,4 @@
 # coding:utf-8
-import sys
 from PySide6.QtSvgWidgets import QSvgWidget
 
 class CloseButton(QSvgWidget):
